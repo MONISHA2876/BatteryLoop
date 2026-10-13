@@ -240,7 +240,7 @@ export default function Home() {
             </div>
 
             <div className="nav-actions">
-              <a className="nav-signin" href="#footer">Sign In</a>
+              <Link className="nav-signin" href="/dashboard">Sign In</Link>
               <Link className="nav-cta" href="/dashboard">
                 Explore BatteryLoop <span aria-hidden="true">→</span>
               </Link>

@@ -1,0 +1,220 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  address     String   @unique
+  displayName String?
+  email       String?
+  location    String?
+  bio         String?
+  appRole     String   @default("USER")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  batteries     Battery[]
+  lifecycle     LifecycleEvent[]
+  assessments   HealthAssessment[]
+  scans         PcbScan[]
+  valuations    Valuation[]
+  listings      MarketplaceListing[]
+  sentRequests  MarketplaceRequest[] @relation("BuyerRequests")
+  recvRequests  MarketplaceRequest[] @relation("SellerRequests")
+  recycling     RecyclingRecord[]
+}
+
+model AuthNonce {
+  id        String   @id @default(cuid())
+  address   String
+  nonce     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([address])
+}
+
+model Battery {
+  id                   String   @id @default(cuid())
+  batteryId            String   @unique
+  name                 String
+  model                String?
+  manufacturerName     String
+  manufacturerAddress  String
+  chemistry            String
+  capacityValue        Float
+  capacityUnit         String
+  manufacturedAt       String?
+  serialNumber         String?
+  initialCondition     String
+  specificationsJson   String   @default("{}")
+  canonicalMetadata    String
+  metadataHash         String
+  chainStatus          String   @default("DRAFT")
+  txHash               String?
+  registeredAtChain    String?
+  existsOnChain        Boolean  @default(false)
+  onChainManufacturer  String?
+  onChainMetadataHash  String?
+  hashMatch            Boolean?
+  createdByAddress     String
+  createdBy            User     @relation(fields: [createdByAddress], references: [address])
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  lifecycle    LifecycleEvent[]
+  assessments  HealthAssessment[]
+  valuations   Valuation[]
+  listings     MarketplaceListing[]
+  recycling    RecyclingRecord[]
+
+  @@index([createdByAddress])
+  @@index([chainStatus])
+}
+
+model LifecycleEvent {
+  id               String   @id @default(cuid())
+  batteryId        String
+  battery          Battery  @relation(fields: [batteryId], references: [batteryId])
+  eventType        Int
+  payloadJson      String
+  dataHash         String
+  fromAddress      String?
+  toAddress        String?
+  chainStatus      String   @default("DRAFT")
+  txHash           String?
+  onChainIndex     Int?
+  onChainTimestamp String?
+  onChainActor     String?
+  hashMatch        Boolean?
+  createdByAddress String
+  createdBy        User     @relation(fields: [createdByAddress], references: [address])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([batteryId])
+  @@index([chainStatus])
+}
+
+model HealthAssessment {
+  id               String   @id @default(cuid())
+  batteryId        String?
+  battery          Battery? @relation(fields: [batteryId], references: [batteryId])
+  inputJson        String
+  resultJson       String
+  sohEstimate      Float?
+  sohMethod        String?
+  modelName        String
+  createdByAddress String
+  createdBy        User     @relation(fields: [createdByAddress], references: [address])
+  createdAt        DateTime @default(now())
+
+  @@index([batteryId])
+}
+
+model PcbScan {
+  id               String   @id @default(cuid())
+  imagePath        String
+  mimeType         String
+  originalName     String
+  resultJson       String?
+  summary          String?
+  status           String   @default("UPLOADED")
+  errorMessage     String?
+  modelName        String?
+  createdByAddress String
+  createdBy        User     @relation(fields: [createdByAddress], references: [address])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  valuations Valuation[]
+}
+
+model Valuation {
+  id                 String   @id @default(cuid())
+  batteryId          String?
+  battery            Battery? @relation(fields: [batteryId], references: [batteryId])
+  pcbScanId          String?
+  pcbScan            PcbScan? @relation(fields: [pcbScanId], references: [id])
+  inputJson          String
+  resultJson         String
+  indicativeValueUsd Float?
+  valueLabel         String
+  modelName          String?
+  createdByAddress   String
+  createdBy          User     @relation(fields: [createdByAddress], references: [address])
+  createdAt          DateTime @default(now())
+
+  listings MarketplaceListing[]
+}
+
+model MarketplaceListing {
+  id               String   @id @default(cuid())
+  title            String
+  description      String
+  category         String
+  condition        String
+  priceUsd         Float?
+  currency         String   @default("USD")
+  location         String?
+  status           String   @default("DRAFT")
+  batteryId        String?
+  battery          Battery? @relation(fields: [batteryId], references: [batteryId])
+  valuationId      String?
+  valuation        Valuation? @relation(fields: [valuationId], references: [id])
+  sellerAddress    String
+  seller           User     @relation(fields: [sellerAddress], references: [address])
+  moderated        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  requests MarketplaceRequest[]
+
+  @@index([status])
+  @@index([category])
+  @@index([sellerAddress])
+}
+
+model MarketplaceRequest {
+  id            String              @id @default(cuid())
+  listingId     String
+  listing       MarketplaceListing  @relation(fields: [listingId], references: [id])
+  buyerAddress  String
+  buyer         User                @relation("BuyerRequests", fields: [buyerAddress], references: [address])
+  sellerAddress String
+  seller        User                @relation("SellerRequests", fields: [sellerAddress], references: [address])
+  message       String
+  status        String              @default("OPEN")
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([buyerAddress])
+  @@index([sellerAddress])
+}
+
+model RecyclingRecord {
+  id                  String   @id @default(cuid())
+  batteryId           String
+  battery             Battery  @relation(fields: [batteryId], references: [batteryId])
+  recyclerAddress     String
+  recycler            User     @relation(fields: [recyclerAddress], references: [address])
+  consumerAddress     String?
+  status              String   @default("SUBMITTED")
+  notes               String?
+  recoveredJson       String   @default("[]")
+  chainStatus         String   @default("DRAFT")
+  txHash              String?
+  recyclerAmountWei   String?
+  consumerAmountWei   String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([batteryId])
+  @@index([recyclerAddress])
+  @@index([status])
+}
