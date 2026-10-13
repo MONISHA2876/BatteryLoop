@@ -220,7 +220,7 @@ function HeroVisual() {
 
 export default function Home() {
   return (
-    <main className="page-shell text-soft">
+    <main className="page-shell text-soft" >
       <header className="topbar-wrap">
         <div className="section-shell">
           <nav className="topbar glass-panel" aria-label="Main navigation">

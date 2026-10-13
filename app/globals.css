@@ -17,7 +17,6 @@
 }
 
 @theme inline {
-  --color-background: var(--bg);
   --color-foreground: var(--text);
   --font-sans: var(--font-display);
   --font-mono: var(--font-mono);
@@ -29,13 +28,28 @@ html {
 }
 
 body {
+  position: relative;
   margin: 0;
   min-height: 100vh;
-  background:
+  /* background:
+    linear-gradient(180deg, rgba(7, 16, 12, 0.8), rgba(7, 16, 12, 0.88)),
     radial-gradient(circle at top, rgba(198, 255, 77, 0.1), transparent 25%),
-    linear-gradient(180deg, #07100c 0%, #08140f 100%);
+    linear-gradient(180deg, #07100c 0%, #08140f 100%); */
   color: var(--text);
   font-family: var(--font-display), sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("@/public/bg.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0.18;
+  filter: saturate(0.7) brightness(0.7);
 }
 
 * {
