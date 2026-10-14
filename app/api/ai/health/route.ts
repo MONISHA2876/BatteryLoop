@@ -5,6 +5,17 @@ import { handleRouteError, readJson } from "@/lib/api";
 import { estimateSohPercent, healthInputSchema } from "@/lib/validation/battery";
 import { assessBatteryHealth, getGeminiModelName, isGeminiConfigured } from "@/lib/gemini/client";
 
+async function resolveLinkedBatteryId(batteryId?: string | null) {
+  if (!batteryId) return null;
+  const normalized = batteryId.trim().toLowerCase();
+  if (!/^0x[a-f0-9]{64}$/.test(normalized)) return null;
+  const battery = await getPrisma().battery.findUnique({
+    where: { batteryId: normalized },
+    select: { batteryId: true },
+  });
+  return battery ? normalized : null;
+}
+
 export async function POST(request: Request) {
   try {
     const session = await requireSession();
@@ -18,11 +29,12 @@ export async function POST(request: Request) {
       cycleCount: body.cycleCount ? Number(body.cycleCount) : null,
       temperatureC: body.temperatureC === "" || body.temperatureC === undefined ? null : Number(body.temperatureC),
     });
+    const linkedBatteryId = await resolveLinkedBatteryId(parsed.batteryId);
     const soh = estimateSohPercent(parsed);
     const ai = await assessBatteryHealth({ ...parsed, ...soh });
     const record = await getPrisma().healthAssessment.create({
       data: {
-        batteryId: parsed.batteryId || null,
+        batteryId: linkedBatteryId,
         inputJson: JSON.stringify(parsed),
         resultJson: JSON.stringify({ ai, soh }),
         sohEstimate: soh.sohEstimate,

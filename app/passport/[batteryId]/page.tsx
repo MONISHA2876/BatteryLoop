@@ -1,6 +1,7 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { DataSource, EmptyState, PageHeader, SkeletonGrid, StatusChip } from "@/components/ui/primitives";
@@ -47,7 +48,7 @@ type Payload = {
   error?: string;
 };
 
-export default function PublicPassportPage() {
+function PublicPassportInner() {
   const params = useParams<{ batteryId: string }>();
   const batteryId = decodeURIComponent(params.batteryId);
   const [data, setData] = useState<Payload | null>(null);
@@ -183,5 +184,13 @@ export default function PublicPassportPage() {
         )}
       </section>
     </main>
+  );
+}
+
+export default function PublicPassportPage() {
+  return (
+    <Suspense fallback={<SkeletonGrid count={3} />}>
+      <PublicPassportInner />
+    </Suspense>
   );
 }

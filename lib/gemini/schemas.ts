@@ -1,12 +1,21 @@
 import { z } from "zod";
 
+const normalizeConfidence = (value: unknown) => {
+  if (typeof value !== "string") return value;
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "moderate") return "medium";
+  return normalized;
+};
+
+const confidenceSchema = z.preprocess(normalizeConfidence, z.enum(["low", "medium", "high"]));
+
 export const healthAiSchema = z.object({
   summary: z.string(),
   observedIndicators: z.array(z.string()),
   possibleRisks: z.array(z.string()),
   missingInformation: z.array(z.string()),
   suggestedNextSteps: z.array(z.string()),
-  confidence: z.enum(["low", "medium", "high"]),
+  confidence: confidenceSchema,
   limitations: z.string(),
 });
 
@@ -17,7 +26,7 @@ export const pcbDetectionSchema = z.object({
       name: z.string(),
       description: z.string(),
       conditionEstimate: z.string().optional().default("unknown"),
-      confidence: z.enum(["low", "medium", "high"]),
+      confidence: confidenceSchema,
       uncertainty: z.string(),
     }),
   ),

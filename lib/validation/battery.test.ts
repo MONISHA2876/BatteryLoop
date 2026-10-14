@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { healthAiSchema } from "@/lib/gemini/schemas";
 import {
   buildCanonicalBatteryMetadata,
   deterministicValueUsd,
@@ -16,6 +17,7 @@ describe("battery metadata", () => {
       capacityValue: 12,
       capacityUnit: "kWh",
       initialCondition: "good",
+      specifications: {},
     });
     const b = buildCanonicalBatteryMetadata({
       schemaVersion: 1,
@@ -26,6 +28,7 @@ describe("battery metadata", () => {
       capacityValue: 12,
       capacityUnit: "kWh",
       initialCondition: "good",
+      specifications: {},
     });
     expect(a.metadataHash).toBe(b.metadataHash);
   });
@@ -66,5 +69,21 @@ describe("valuation", () => {
       unitPriceUsd: 10,
     });
     expect(result.indicativeValueUsd).toBe(17);
+  });
+});
+
+describe("gemini response normalization", () => {
+  it("accepts case and wording variants for confidence", () => {
+    const result = healthAiSchema.parse({
+      summary: "Battery is within normal range.",
+      observedIndicators: ["Capacity is stable."],
+      possibleRisks: [],
+      missingInformation: ["No full cycle data."],
+      suggestedNextSteps: ["Run a full diagnostic."],
+      confidence: "High",
+      limitations: "This is not a certified safety test.",
+    });
+
+    expect(result.confidence).toBe("high");
   });
 });

@@ -60,13 +60,16 @@ export async function readLifecycleEventCount(batteryId: string): Promise<number
 }
 
 export async function readLifecycleEvent(batteryId: string, index: number) {
-  const result = await lifecycleContract().getEvent(batteryId, index);
+  const contract = lifecycleContract();
+  const call = contract.getFunction("getEvent");
+  const result = await call(batteryId, index);
+  const [eventBatteryId, eventType, dataHash, actor, timestamp] = result as [string, bigint, string, string, bigint];
   return {
-    batteryId: String(result[0]),
-    eventType: Number(result[1]),
-    dataHash: String(result[2]),
-    actor: String(result[3]),
-    timestamp: String(result[4]),
+    batteryId: String(eventBatteryId),
+    eventType: Number(eventType),
+    dataHash: String(dataHash),
+    actor: String(actor),
+    timestamp: String(timestamp),
   };
 }
 

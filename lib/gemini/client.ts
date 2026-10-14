@@ -9,6 +9,8 @@ export function getGeminiModelName(): string {
   return process.env.GEMINI_MODEL?.trim() || "gemini-2.0-flash";
 }
 
+const GEMINI_TIMEOUT_MS = Number(process.env.GEMINI_TIMEOUT_MS || 120_000);
+
 function getClient() {
   const key = process.env.GEMINI_API_KEY?.trim();
   if (!key) {
@@ -106,7 +108,7 @@ async function generateStructured(options: {
   const result = await Promise.race([
     model.generateContent(parts),
     new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error("The Gemini request timed out.")), 45_000);
+      setTimeout(() => reject(new Error(`The Gemini request timed out after ${GEMINI_TIMEOUT_MS} ms.`)), GEMINI_TIMEOUT_MS);
     }),
   ]);
 
@@ -120,6 +122,7 @@ export async function assessBatteryHealth(input: unknown) {
     prompt: `You are assisting BatteryLoop with a structured battery health assessment.
 Do not invent lab-certified State of Health. If quantitative data is missing, say so.
 Do not claim electrical safety certification.
+Use only lowercase values for confidence: low, medium, or high.
 Return JSON only.
 
 Input JSON:
@@ -135,6 +138,7 @@ export async function analyzePcbImage(image: { mimeType: string; data: string })
     prompt: `Analyze this PCB or e-waste photo for visually identifiable components.
 This is visual identification only. Do not claim exact material composition, electrical function, or monetary value.
 If uncertain, use low confidence and explain uncertainty.
+For every detection, set confidence to exactly one of: low, medium, high (lowercase only).
 Return JSON only.`,
   });
   return pcbDetectionSchema.parse(json);

@@ -85,14 +85,14 @@ export function Field({
 export function PrimaryButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement> & { href?: string },
 ) {
-  if (props.href) {
+  const { href, ...rest } = props;
+  if (href) {
     return (
-      <Link className="primary-btn" href={props.href}>
+      <Link className="primary-btn" href={href}>
         {props.children}
       </Link>
     );
   }
-  const { href: _href, ...rest } = props;
   return <button className="primary-btn" {...rest} />;
 }
 

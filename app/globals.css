@@ -44,11 +44,11 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: url("@/public/bg.png");
+  background-image: url("@/public/bg.mp4");
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
-  opacity: 0.18;
+  opacity: 0.10;
   filter: saturate(0.7) brightness(0.7);
 }
 

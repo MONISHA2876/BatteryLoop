@@ -1,9 +1,10 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useEffect, useState } from "react";
 import { Banner, Field, PageHeader, PrimaryButton } from "@/components/ui/primitives";
 import { useWallet } from "@/components/wallet/WalletProvider";
-import { parseEther, formatEther } from "ethers";
+import { parseEther } from "ethers";
 import { describeChainError } from "@/lib/blockchain/errors";
 import { explorerTxUrl } from "@/lib/blockchain/config";
 

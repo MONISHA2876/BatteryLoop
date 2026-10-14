@@ -187,37 +187,6 @@ function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return <p className="eyebrow">{children}</p>;
 }
 
-function HeroVisual() {
-  return (
-    <div className="hero-visual" aria-hidden="true">
-      <div className="ambient-glow" />
-      <div className="ring ring-one" />
-      <div className="ring ring-two" />
-      <div className="orbit orbit-one" />
-      <div className="orbit orbit-two" />
-
-      <div className="battery-shell">
-        <div className="battery-cap" />
-        <div className="battery-panel">
-          <span className="battery-label">HEALTH STATUS</span>
-          <strong>92%</strong>
-        </div>
-
-        <div className="battery-rows">
-          <span />
-          <span />
-          <span />
-          <span />
-        </div>
-      </div>
-
-      <div className="floating-tag tag-one">DIGITAL PASSPORT</div>
-      <div className="floating-tag tag-two">MATERIAL RECOVERY</div>
-      <div className="floating-tag tag-three">HEALTH STATUS</div>
-    </div>
-  );
-}
-
 export default function Home() {
   return (
     <main className="page-shell text-soft" >
@@ -292,7 +261,59 @@ export default function Home() {
           </div>
         </div>
 
-        <HeroVisual />
+        
+<div className="sketchfab-embed-wrapper w-full">
+  <iframe
+    title="WALL-E"
+    className="w-full aspect-[4/3] rounded-xl border-0"
+    src="https://sketchfab.com/models/f85b5cd3bf514cccbbd8428ad42a2382/embed"
+    allow="autoplay; fullscreen; xr-spatial-tracking"
+    allowFullScreen
+    mozallowfullscreen="true"
+    webkitallowfullscreen="true"
+    xr-spatial-tracking=""
+    execution-while-out-of-viewport=""
+    execution-while-not-rendered=""
+    web-share=""
+  />
+
+  <p
+    style={{
+      fontSize: 13,
+      fontWeight: "normal",
+      margin: 5,
+      color: "#4A4A4A",
+    }}
+  >
+    <a
+      href="https://sketchfab.com/3d-models/wall-e-f85b5cd3bf514cccbbd8428ad42a2382"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ fontWeight: "bold", color: "#1CAAD9" }}
+    >
+      WALL-E
+    </a>{" "}
+    by{" "}
+    <a
+      href="https://sketchfab.com/OsatpHirniak"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ fontWeight: "bold", color: "#1CAAD9" }}
+    >
+      katedra.604
+    </a>{" "}
+    on{" "}
+    <a
+      href="https://sketchfab.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ fontWeight: "bold", color: "#1CAAD9" }}
+    >
+      Sketchfab
+    </a>
+  </p>
+</div>
+
       </section>
 
       <section id="impact" className="stats-section reveal">

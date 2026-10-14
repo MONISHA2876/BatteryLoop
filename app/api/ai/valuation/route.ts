@@ -5,6 +5,17 @@ import { handleRouteError, readJson } from "@/lib/api";
 import { deterministicValueUsd, valuationInputSchema } from "@/lib/validation/battery";
 import { explainValuation, getGeminiModelName, isGeminiConfigured } from "@/lib/gemini/client";
 
+async function resolveLinkedBatteryId(batteryId?: string | null) {
+  if (!batteryId) return null;
+  const normalized = batteryId.trim().toLowerCase();
+  if (!/^0x[a-f0-9]{64}$/.test(normalized)) return null;
+  const battery = await getPrisma().battery.findUnique({
+    where: { batteryId: normalized },
+    select: { batteryId: true },
+  });
+  return battery ? normalized : null;
+}
+
 export async function GET() {
   try {
     const session = await requireSession();
@@ -28,6 +39,7 @@ export async function POST(request: Request) {
       quantity: Number(body.quantity),
       unitPriceUsd: body.unitPriceUsd === "" || body.unitPriceUsd === undefined ? null : Number(body.unitPriceUsd),
     });
+    const linkedBatteryId = await resolveLinkedBatteryId(parsed.batteryId);
     const numeric = deterministicValueUsd(parsed);
     let ai = null;
     if (isGeminiConfigured()) {
@@ -35,7 +47,7 @@ export async function POST(request: Request) {
     }
     const record = await getPrisma().valuation.create({
       data: {
-        batteryId: parsed.batteryId || null,
+        batteryId: linkedBatteryId,
         pcbScanId: parsed.pcbScanId || null,
         inputJson: JSON.stringify(parsed),
         resultJson: JSON.stringify({ numeric, ai }),
